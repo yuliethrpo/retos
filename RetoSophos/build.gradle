@@ -1,0 +1,68 @@
+defaultTasks 'clean','test','aggregate'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+version '1.0-SNAPSHOT'
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+            mavenLocal()
+            mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:3.2.0")
+    }
+}
+
+ext{
+    serenityVersion = '3.2.0'
+    serenityCucumberVersion = '3.2.0'
+}
+
+test {
+    useJUnitPlatform {
+        excludeTags("disabled")
+    }
+    systemProperties(project.gradle.startParameter.systemPropertiesArgs)
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
+    outputs.upToDateWhen { false }
+    finalizedBy('aggregate')
+}
+
+dependencies {
+
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-junit5:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-ensure:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-cucumber:$rootProject.ext.serenityCucumberVersion"
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre8'
+    implementation 'org.mongodb:mongo-java-driver:3.12.10'
+    testImplementation "org.junit.platform:junit-platform-launcher:1.8.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+    testImplementation "org.junit.vintage:junit-vintage-engine:5.8.2"
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '2.0.0-alpha1'
+    implementation group: 'com.intuit.karate', name: 'karate-junit5', version: '1.1.0'
+
+}
+
+gradle.startParameter.continueOnFailure = true
